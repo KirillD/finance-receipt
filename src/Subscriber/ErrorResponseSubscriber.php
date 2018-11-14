@@ -7,6 +7,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 class ErrorResponseSubscriber implements EventSubscriberInterface
 {
@@ -20,7 +21,13 @@ class ErrorResponseSubscriber implements EventSubscriberInterface
         $response = [
             'error' => $exception->getMessage()
         ];
-        $event->setResponse(new JsonResponse($response, Response::HTTP_INTERNAL_SERVER_ERROR));
+
+        $code = Response::HTTP_INTERNAL_SERVER_ERROR;
+        if ($exception instanceof AccessDeniedHttpException) {
+            $code = Response::HTTP_FORBIDDEN;
+        }
+
+        $event->setResponse(new JsonResponse($response, $code));
     }
 
     /**

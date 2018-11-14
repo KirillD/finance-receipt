@@ -27,3 +27,9 @@ doctrine:
                 dir: '%kernel.project_dir%/src/Entity'
                 prefix: 'App\Entity'
                 alias: App
+        second_level_cache:
+            enabled: true
+            log_enabled: true
+            region_cache_driver: apcu
+            region_lock_lifetime: 60
+            region_lifetime: 300
