@@ -2,6 +2,7 @@
 
 namespace App\Entity\Receipt;
 
+use App\Entity\Discount;
 use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
@@ -29,6 +30,12 @@ class Receipt
      * @Groups({"full"})
      */
     private $receiptItems;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\Discount")
+     * @ORM\JoinColumn(name="discount_id", referencedColumnName="id")
+     */
+    private $discount;
 
     /**
      * @ORM\Column(name="status", type="smallint")
@@ -97,6 +104,25 @@ class Receipt
     public function setStatus(?int $status)
     {
         $this->status = $status;
+
+        return $this;
+    }
+
+    /**
+     * @return Discount|null
+     */
+    public function getDiscount(): ?Discount
+    {
+        return $this->discount;
+    }
+
+    /**
+     * @param Discount|null $discount
+     * @return Receipt
+     */
+    public function setDiscount(?Discount $discount)
+    {
+        $this->discount = $discount;
 
         return $this;
     }

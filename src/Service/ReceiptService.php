@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Entity\Discount;
 use App\Entity\Product\Product;
 use App\Entity\Receipt\Receipt;
 use App\Entity\Receipt\ReceiptItem;
@@ -94,11 +95,18 @@ class ReceiptService
         $product = $receiptItem->getProduct();
         $vatValue = Product::VAT_CLASSES[$product->getVatClassType()];
         $cost = $receiptItem->getAmount() * $product->getCost();
+        $discount = $receiptItem->getReceipt()->getDiscount();
+        if ($discount) {
+            $discountAmount = $this->calculateDiscountOnReceiptItem($receiptItem, $discount);
+            $cost -= $discountAmount;
+        }
+        if ($receiptItem->getReceipt()->getReceiptItems())
         $vatCost = $cost * $vatValue / 100;
 
         return [
             'cost' => (int) $cost,
             'vatCost' => (int) $vatCost,
+            'discount' => (int) $discountAmount,
             'vatClass' => $product->getVatClassType(),
         ];
     }
@@ -113,6 +121,7 @@ class ReceiptService
             'vat_6' => 0,
             'vat_21' => 0,
             'total' => 0,
+            'discount' => 0,
         ];
         foreach ($receipt->getReceiptItems() as $item) {
             $item = $this->calculateCostForItem($item);
@@ -123,8 +132,56 @@ class ReceiptService
                 $response['vat_21'] += $item['vatCost'];
             }
             $response['total'] += $item['cost'];
+            $response['discount'] += $item['discount'];
         }
 
         return $response;
+    }
+
+    /**
+     * @return Receipt
+     */
+    public function createReceipt()
+    {
+        $receipt = new Receipt();
+        $this->addDiscountToReceipt($receipt);
+
+        $this->em->persist($receipt);
+        $this->em->flush();
+        $this->em->refresh($receipt);
+
+        return $receipt;
+    }
+
+    /**
+     * @param Receipt $receipt
+     */
+    private function addDiscountToReceipt(Receipt $receipt)
+    {
+        $discount = null;
+        //In real life there should be strategy of choosing discount
+        $discounts = $this->em->getRepository(Discount::class)->findBy(['status' => Discount::STATUS_ACTIVE]);
+
+        if (isset($discounts[0])) {
+            $discount = $discounts[0];
+        }
+
+        $receipt->setDiscount($discount);
+    }
+
+    /**
+     * @param ReceiptItem $receipt
+     * @param Discount $discount
+     * @return int
+     */
+    private function calculateDiscountOnReceiptItem(ReceiptItem $receipt, Discount $discount)
+    {
+        $discountAmount = 0;
+        if ($discount->getStrategy() == Discount::STRATEGY_EVERY_THIRD) {
+            $numItems = (int) ($receipt->getAmount() / 3);
+            $discountAmount = $numItems * $receipt->getProduct()->getCost();
+        }
+
+        return (int) $discountAmount;
     }
 }

@@ -41,6 +41,7 @@ class ReceiptItemNormalizer implements NormalizerInterface
         $data['cost'] = $costData['cost'] / 100;
         $data['vat_cost'] = $costData['vatCost'] / 100;
         $data['vat_class'] = $costData['vatClass'];
+        $data['discount'] = $costData['discount'] / 100;
 
         return $data;
     }

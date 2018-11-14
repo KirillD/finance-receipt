@@ -37,12 +37,9 @@ class ReceiptController
      */
     public function createReceipt(
         SerializerInterface $serializer,
-        EntityManagerInterface $entityManager
+        ReceiptService $receiptService
     ) {
-        $receipt = new Receipt();
-        $entityManager->persist($receipt);
-        $entityManager->flush();
-        $entityManager->refresh($receipt);
+        $receipt = $receiptService->createReceipt();
 
         return new JsonResponse(
             $serializer->serialize($receipt, 'json', ['groups' => 'short']),
