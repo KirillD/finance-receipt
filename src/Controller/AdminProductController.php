@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Controller\Common\FormErrorHandlerTrait;
 use App\Entity\Product\Product;
 use App\Form\ProductType;
+use App\Service\ProductService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -97,5 +98,59 @@ class AdminProductController
         } else {
             return $this->getFormErrorsResponse($form);
         }
+    }
+
+    /**
+     * @SWG\Response(
+     *     response=200,
+     *     description="Returns the list of products",
+     *     @SWG\Schema(
+     *       type="object",
+     *       @SWG\Property(property="products", type="array", description="List of products", @SWG\Items(
+     *                 type="object",
+     *                 @SWG\Property(property="id", type="string", example="1234567"),
+     *                 @SWG\Property(property="barcode", type="string", example="1234567"),
+     *                 @SWG\Property(property="name", type="string", example="product1"),
+     *                 @SWG\Property(property="cost", type="float", enum={9.99}),
+     *                 @SWG\Property(
+     *                      property="vat_class_type",
+     *                      type="integer",
+     *                      example="1",
+     *                      description="1 - 6%, 2 - 21%"),
+     *                 )
+     *           ),
+     *       @SWG\Property(property="cursor", type="object",
+     *                 @SWG\Property(property="count", type="integer"),
+     *       ),
+     *     )
+     * )
+     * @SWG\Parameter(
+     *         name="limit",
+     *         in="query",
+     *         type="integer",
+     *         description="Limit for pagination"
+     *     )
+     * @SWG\Parameter(
+     *         name="offset",
+     *         in="query",
+     *         type="integer",
+     *         description="Cursor position"
+     *     )
+     * @SWG\Tag(name="Admin product")
+     * @Route("/api/admin/product/list", name="admin_get_products_list", methods="GET")
+     */
+    public function getProductList(
+        ProductService $productService,
+        Request $request,
+        SerializerInterface $serializer
+    ) {
+        $data = $productService->getProductList(
+            $request->query->getInt('limit', 0),
+            $request->query->getInt('offset', 1)
+        );
+
+        return new JsonResponse(
+            $serializer->serialize($data, 'json', ['groups' => ['full']])
+        );
     }
 }
