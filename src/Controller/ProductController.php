@@ -2,7 +2,6 @@
 
 namespace App\Controller;
 
-use App\Controller\Common\FormErrorHandlerTrait;
 use App\Entity\Product\Product;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -13,8 +12,6 @@ use Symfony\Component\Serializer\SerializerInterface;
 
 class ProductController
 {
-    use FormErrorHandlerTrait;
-
     /**
      *
      * @SWG\Response(
@@ -22,7 +19,6 @@ class ProductController
      *     description="Product",
      *     @SWG\Schema(
      *        type="object",
-     *        @SWG\Property(property="id", type="string", example="1234567"),
      *        @SWG\Property(property="barcode", type="string", example="1234567"),
      *        @SWG\Property(property="name", type="string", example="product1"),
      *        @SWG\Property(property="cost", type="float", enum={9.99}),
@@ -47,7 +43,7 @@ class ProductController
      * @Route("/api/product/{barcode}", name="get_product", methods="GET")
      * @return  JsonResponse
      */
-    public function createProduct(
+    public function getProduct(
         string $barcode,
         SerializerInterface $serializer,
         EntityManagerInterface $entityManager

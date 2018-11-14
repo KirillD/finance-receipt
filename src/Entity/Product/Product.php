@@ -18,7 +18,6 @@ class Product implements VatClassInterface
      * @ORM\Id
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue(strategy="AUTO")
-     * @Groups({"full"})
      */
     private $id;
 
