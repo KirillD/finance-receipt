@@ -167,4 +167,67 @@ class ReceiptController
             return new JsonResponse($exception->getMessage(), $exception->getCode());
         }
     }
+
+    /**
+     *
+     * @SWG\Response(
+     *     response=200,
+     *     description="Receipt",
+     *     @SWG\Schema(
+     *        type="object",
+     *        @SWG\Property(property="id", type="string", example="1"),
+     *        @SWG\Property(property="status", type="integer", description="0 - new, 1 - finished"),
+     *        @SWG\Property(property="receipt_items", type="array", @SWG\Items(
+     *                 type="object",
+     *                 @SWG\Property(property="name", type="string"),
+     *                 @SWG\Property(property="amount", type="integer"),
+     *                 @SWG\Property(property="cost", type="integer"),
+     *                 @SWG\Property(property="vat_cost", type="integer"),
+     *                 @SWG\Property(property="vat_class", type="integer"),
+     *        )),
+     *        @SWG\Property(property="total", type="object",
+     *                 @SWG\Property(property="vat_6", type="integer"),
+     *                 @SWG\Property(property="vat_21", type="integer"),
+     *                 @SWG\Property(property="total", type="integer"),
+     *       ),
+     *      )
+     * )
+     * @SWG\Response(
+     *        response=400,
+     *        description="Bad request",
+     *        @SWG\Schema(
+     *            type="object",
+     *            @SWG\Property(property="code", type="integer", enum={400}),
+     *            @SWG\Property(property="message", type="string", example="Bad Request")
+     *        )
+     * )
+     * @SWG\Response(
+     *        response=404,
+     *        description="Not found",
+     *        @SWG\Schema(
+     *            type="object",
+     *            @SWG\Property(property="code", type="integer", enum={404}),
+     *            @SWG\Property(property="message", type="string", example="Not found")
+     *        )
+     * )
+     * @SWG\Tag(name="Receipt")
+     *
+     * @Route("/api/receipt/{id}", name="get_receipt", methods="GET")
+     * @return  JsonResponse
+     */
+    public function getReceipt(
+        int $id,
+        SerializerInterface $serializer,
+        EntityManagerInterface $entityManager
+    ) {
+        $receipt = $entityManager->getRepository(Receipt::class)->find($id);
+        if (!$receipt) {
+            return new JsonResponse('Not found', Response::HTTP_NOT_FOUND);
+        }
+
+        return new JsonResponse(
+            $serializer->serialize($receipt, 'json', ['groups' => 'full']),
+            Response::HTTP_CREATED
+        );
+    }
 }

@@ -29,5 +29,9 @@ framework:
         # APCu (not recommended with heavy random-write workloads as memory fragmentation can cause perf issues)
         #app: cache.adapter.apcu
 
+    #necessary for FOS_USER
     templating:
         engines: ['twig']
+
+    serializer:
+        name_converter: 'serializer.name_converter.camel_case_to_snake_case'

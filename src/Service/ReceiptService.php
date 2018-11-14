@@ -84,4 +84,47 @@ class ReceiptService
 
         return $receipt;
     }
+
+    /**
+     * @param ReceiptItem $receiptItem
+     * @return array
+     */
+    public function calculateCostForItem(ReceiptItem $receiptItem)
+    {
+        $product = $receiptItem->getProduct();
+        $vatValue = Product::VAT_CLASSES[$product->getVatClassType()];
+        $cost = $receiptItem->getAmount() * $product->getCost();
+        $vatCost = $cost * $vatValue / 100;
+
+        return [
+            'cost' => (int) $cost,
+            'vatCost' => (int) $vatCost,
+            'vatClass' => $product->getVatClassType(),
+        ];
+    }
+
+    /**
+     * @param Receipt $receipt
+     * @return array
+     */
+    public function getTotalCostForReceipt(Receipt $receipt)
+    {
+        $response = [
+            'vat_6' => 0,
+            'vat_21' => 0,
+            'total' => 0,
+        ];
+        foreach ($receipt->getReceiptItems() as $item) {
+            $item = $this->calculateCostForItem($item);
+            if ($item['vatClass'] == Product::VAT_CLASS_6) {
+                $response['vat_6'] += $item['vatCost'];
+            }
+            if ($item['vatClass'] == Product::VAT_CLASS_21) {
+                $response['vat_21'] += $item['vatCost'];
+            }
+            $response['total'] += $item['cost'];
+        }
+
+        return $response;
+    }
 }

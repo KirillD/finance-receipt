@@ -2,12 +2,12 @@
 
 namespace App\Serializer;
 
-use App\Entity\Receipt\ReceiptItem;
+use App\Entity\Receipt\Receipt;
 use App\Service\ReceiptService;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
-class ReceiptItemNormalizer implements NormalizerInterface
+class ReceipNormalizer implements NormalizerInterface
 {
     /**
      * @var ObjectNormalizer
@@ -32,15 +32,10 @@ class ReceiptItemNormalizer implements NormalizerInterface
     /**
      * @inheritdoc
      */
-    public function normalize($receiptItem, $format = null, array $context = array())
+    public function normalize($receipt, $format = null, array $context = array())
     {
-        $data['name'] = $receiptItem->getProduct()->getName();
-        $data['amount'] = $receiptItem->getAmount();
-        $data['amount'] = $receiptItem->getAmount();
-        $costData = $this->receiptService->calculateCostForItem($receiptItem);
-        $data['cost'] = $costData['cost'] / 100;
-        $data['vat_cost'] = $costData['vatCost'] / 100;
-        $data['vat_class'] = $costData['vatClass'];
+        $data = $this->normalizer->normalize($receipt, $format, $context);
+        $data['total'] = $this->receiptService->getTotalCostForReceipt($receipt);
 
         return $data;
     }
@@ -48,8 +43,8 @@ class ReceiptItemNormalizer implements NormalizerInterface
     /**
      * @inheritdoc
      */
-    public function supportsNormalization($receiptItem, $format = null)
+    public function supportsNormalization($receipt, $format = null)
     {
-        return $receiptItem instanceof ReceiptItem;
+        return $receipt instanceof Receipt;
     }
 }
