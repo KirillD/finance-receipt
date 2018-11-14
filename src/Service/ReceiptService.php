@@ -79,7 +79,8 @@ class ReceiptService
      */
     public function finishReceipt(Receipt $receipt)
     {
-        $receipt->setStatus(Receipt::STATUS_FINISHED);
+        $receipt->setStatus(Receipt::STATUS_FINISHED)
+            ->setFinishedAt(new \DateTime());
         $this->em->flush();
         //Place for dispatch some event related with operation
 

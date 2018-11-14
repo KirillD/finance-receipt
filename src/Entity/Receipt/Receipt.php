@@ -47,6 +47,11 @@ class Receipt
      */
     private $createdAt;
 
+    /**
+     * @ORM\Column(name="finished_at", type="datetime", nullable=true)
+     */
+    private $finishedAt;
+
     public function __construct()
     {
         $this->createdAt = new DateTime;
@@ -123,6 +128,25 @@ class Receipt
     public function setDiscount(?Discount $discount)
     {
         $this->discount = $discount;
+
+        return $this;
+    }
+
+    /**
+     * @return DateTime|null
+     */
+    public function getFinishedAt(): ?DateTime
+    {
+        return $this->finishedAt;
+    }
+
+    /**
+     * @param mixed $finishedAt
+     * @return Receipt
+     */
+    public function setFinishedAt(?DateTime $finishedAt)
+    {
+        $this->finishedAt = $finishedAt;
 
         return $this;
     }
