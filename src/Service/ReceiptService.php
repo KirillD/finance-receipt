@@ -97,6 +97,7 @@ class ReceiptService
         $vatValue = Product::VAT_CLASSES[$product->getVatClassType()];
         $cost = $receiptItem->getAmount() * $product->getCost();
         $discount = $receiptItem->getReceipt()->getDiscount();
+        $discountAmount = 0;
         if ($discount) {
             $discountAmount = $this->calculateDiscountOnReceiptItem($receiptItem, $discount);
             $cost -= $discountAmount;
