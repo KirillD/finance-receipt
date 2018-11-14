@@ -35,7 +35,7 @@ class LoadUserData extends Fixture implements ContainerAwareInterface
                 ->setEnabled(true)
                 ->setUsername($item['username'])
                 ->setPassword($password)
-                ->setRoles(['ROLE_ADMIN', 'ROLE_USER']);
+                ->setRoles([$item['role']]);
 
             $manager->persist($user);
         }

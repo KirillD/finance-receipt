@@ -1,0 +1,15 @@
+nelmio_api_doc:
+    documentation:
+        info:
+            title: Finance receipts
+            version: 0.1
+        securityDefinitions:
+            jwt:
+                type: apiKey
+                name:  authorization
+                in: header
+        security:
+            - jwt: []
+    areas: # to filter documented areas
+        path_patterns:
+            - ^/api(?!/doc$) # Accepts routes under /api except /api/doc
